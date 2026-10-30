@@ -1,0 +1,49 @@
+/* Corruption overlays. Everything here is a single smooth, low-contrast animation (no strobing),
+   and index.css disables all animation under prefers-reduced-motion. */
+.scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, var(--scan, 0.05)) 0,
+    rgba(0, 0, 0, var(--scan, 0.05)) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* One brief burst (700 ms): two faint horizontal bands settle into place while the overlay fades out. */
+.glitch-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: glitch-burst 700ms ease-out forwards;
+}
+.glitch-burst::before,
+.glitch-burst::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12%;
+  background: rgba(110, 120, 145, 0.2);
+}
+.glitch-burst::before {
+  top: 22%;
+  animation: glitch-slide-a 700ms ease-out forwards;
+}
+.glitch-burst::after {
+  top: 61%;
+  animation: glitch-slide-b 700ms ease-out forwards;
+}
+@keyframes glitch-burst {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes glitch-slide-a {
+  from { transform: translateX(-3%); }
+  to { transform: translateX(0); }
+}
+@keyframes glitch-slide-b {
+  from { transform: translateX(3%); }
+  to { transform: translateX(0); }
+}
