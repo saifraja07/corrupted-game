@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -16,3 +16,5 @@ jobs:
       - run: npm ci
       # lint, unit/integration tests, production build, then the build guard (lazy chunks + size budget)
       - run: npm run verify
+      # an advisory against anything the game ships should fail the build (dev-tool advisories are handled in package.json overrides)
+      - run: npm run audit:prod

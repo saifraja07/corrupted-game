@@ -3,13 +3,13 @@ import { EffectComposer, Vignette, ChromaticAberration, Noise } from '@react-thr
 import { BlendFunction } from 'postprocessing'
 import { Vector2 } from 'three'
 import EffectsBoundary from './EffectsBoundary.jsx'
-import { STAGE_PROFILES } from '../../game/config/corruption.js'
+import { getStageProfile } from '../../game/config/corruption.js'
 import { useGameStore } from '../../game/state/gameStore.js'
 import { useReducedMotion } from '../../hooks/useReducedMotion.js'
 
-function Composer({ stage }) {
+function Composer({ stage, intensity }) {
   const reduced = useReducedMotion()
-  const p = STAGE_PROFILES[stage]
+  const p = getStageProfile(stage, intensity)
   const offset = useMemo(() => new Vector2(p.chroma, p.chroma), [p.chroma])
   return (
     <EffectComposer multisampling={0}>
@@ -24,10 +24,11 @@ function Composer({ stage }) {
 // Postprocessing only exists from stage 1 up: stage 0 pays no cost. Mount inside <Canvas>.
 export default function ScreenEffects() {
   const stage = useGameStore((s) => s.corruptionStage)
+  const intensity = useGameStore((s) => s.corruptionIntensity)
   if (stage < 1) return null
   return (
     <EffectsBoundary>
-      <Composer stage={stage} />
+      <Composer stage={stage} intensity={intensity} />
     </EffectsBoundary>
   )
 }

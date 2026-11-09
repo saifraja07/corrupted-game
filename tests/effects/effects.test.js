@@ -149,3 +149,11 @@ describe('effect components (server render smoke test)', () => {
     expect(inst.render()).toBe(null)
   })
 })
+
+import FakeErrorDialog from '../../src/components/effects/FakeErrorDialog.jsx'
+
+describe('the fake error dialog (server render smoke test)', () => {
+  it('renders nothing unless one is showing, and is never clickable when it is', () => {
+    expect(renderToString(h(FakeErrorDialog))).toBe('')
+  })
+})

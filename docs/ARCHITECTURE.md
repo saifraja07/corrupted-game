@@ -44,6 +44,8 @@ Built incrementally, each phase leaving the game playable and tested:
 5. Puzzle framework. 6. Level 1 with the dialogue system. 7. Level manager, progression, Level 2, saved progress.
 8. Troll mechanics (reversed controls, trigger zones, look-away, staged text), Levels 3 and 4.
 9. Corruption (four stages, effects). 10. Audio, settings, credits, endings. 11. Release hardening.
+14. More levels and more mischief: corruption intensity, rage-bait events, a fake "Level complete", a false
+    ending after Level 8, and Levels 9 to 12 (Almost, Stillness, Which Way Out, Exit).
 13. The *Corrupted* update: renamed from its earlier working title (saved data migrates), an explicit difficulty and tone curve,
     unexpected ambient events, and Levels 5 to 7 (the finale became Level 8 so ids match play order).
 12. Final pass: Level 5 (transforming room, unobserved mover, the presence, the final puzzle), dev flags,
@@ -66,6 +68,8 @@ Built incrementally, each phase leaving the game playable and tested:
 | Three.js raycasts ignore `visible=false` | Objects that must not block interaction are unmounted, not hidden (found while building the presence) | Handled |
 | Counter-intuitive puzzles feeling unfair (Levels 5 to 7) | Each has a non-visual cue (sound when the gate opens, the lamps replaying, the blackout), escalating hints, free retries, and safety rules (the gate never closes on you, a stuck player gets a blackout called) | Tested with simulated players |
 | Unexpected events becoming annoying or unsafe | Scheduler is seeded, never fires at stage 0, in the first 20 s, during dialogue, or less than 16 s apart; every effect is temporary and self-clearing | Tested over simulated hours |
+| Rage-bait annoying players or damaging trust (fake "progress erased", fake level complete) | Bounded durations, a reveal within seconds, no real side effects (tested against the real stores), a real Main menu on every fake screen, and the fake ending is escapable | Tested |
+| Fake screens stranding the player | New lifecycle transitions are guarded by flags in the store (a real completion screen can never be "resumed"; the fake ending can only lead to the next level or the menu) | Tested |
 | An "is it watched?" test using one point on a tall object | Sample along the object's whole height (a single point let players open the gate by staring at it from right beside it; a simulated-player test caught it) | Regression-tested at many distances and pitches |
 | Visual and audio quality, GPU effects | None possible without a real display, GPU and speakers | **Manual QA checklist in the README** |
 
@@ -99,6 +103,21 @@ Built incrementally, each phase leaving the game playable and tested:
 - **Corruption reacts to the player, not to chance.** Struggling (three wrong lamp presses, two wrong
   buttons) raises the stage through the same event rules as everything else. The ambient-event scheduler is
   the only "random" thing, and it is seeded per level run, so a restart behaves identically.
+- **Rage-bait has rules, and the rules are tests.** Every fake-out is short (bounded constants in
+  `config/fakeouts.js`), self-revealing, non-blocking, and touches only the corruption-effects store and audio,
+  never saves, settings or progress. The fake "Level complete" is a store flag (`fakeComplete`) that records
+  nothing and can only be undone by `resumeFromFake()`; the false ending is its own lifecycle state with a
+  real exit at every step. A test applies every ambient event and compares the real stores before and after.
+- **Corruption grows past stage 3 as "intensity", not as a fifth stage.** The spec's four stages stay intact;
+  intensity (0 to 3) only scales stage 3's effects and event frequency, inside hard caps checked at every value.
+- **The finale's (Level 18, id level12) exit is outside the 3D world.** A tiny bridge (`state/metaExit.js`) lets the loaded level add an
+  EXIT button to the pause menu and remove it when it unmounts. The normal "Quit to menu" is always still there.
+- **Level 8 became a false finale.** The levels after it were added without renaming anything: the "Last Room"
+  keeps its id, gains a flag, and the ending flow branches on it.
+- **One transitive dev dependency is overridden.** A denial-of-service advisory against `minimatch` 10 reached
+  the project only through ESLint (the linter, never shipped). Because ESLint pins that major, `npm audit`
+  offered no fix, so `package.json` overrides it to the patched `minimatch` 11 (lint and every test still pass).
+  Remove the override once ESLint depends on a patched version. `npm run audit:prod` checks only what ships.
 - **Level ids match play order.** When three levels were inserted before the finale it was renamed
   `level05` to `level08` mechanically (tests caught nothing missing) rather than leaving an id that lies
   about its position.

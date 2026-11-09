@@ -6,6 +6,7 @@ export const GAME_STATES = Object.freeze({
   TRANSITIONING: 'TRANSITIONING',
   LEVEL_COMPLETE: 'LEVEL_COMPLETE',
   ENDING: 'ENDING',
+  FAKE_ENDING: 'FAKE_ENDING', // the false ending: credits that turn out not to be the end
 })
 
 export const PLAYER = Object.freeze({

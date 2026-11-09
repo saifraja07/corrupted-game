@@ -101,7 +101,7 @@ describe('screens (server render)', () => {
   })
   it('the ending opens on its first page, not the secret', () => {
     const html = renderToString(h(EndingScreen, { onExit: noop }))
-    expect(html).toContain('Exit found.')
+    expect(html).toContain('Exit found. For real this time.')
     expect(html).toContain('Continue')
     expect(html).not.toContain('There was never a door.')
   })

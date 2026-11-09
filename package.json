@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "check:build": "node tools/check-build.mjs",
     "sounds": "python3 tools/generate-sounds.py",
-    "verify": "npm run lint && npm test && npm run build && npm run check:build"
+    "verify": "npm run lint && npm test && npm run build && npm run check:build",
+    "audit:prod": "npm audit --omit=dev"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
@@ -39,5 +40,8 @@
   "description": "Corrupted: Find the exit. Trust nothing. A first-person 3D troll puzzle game that slowly corrupts. Runs entirely in the browser.",
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "minimatch": "^11.0.4"
   }
 }

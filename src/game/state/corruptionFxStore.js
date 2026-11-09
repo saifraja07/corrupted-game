@@ -9,6 +9,7 @@ export const useCorruptionFxStore = create((set, get) => ({
   seq: 0, // unique ids for banners/objective glitches
   banner: null, // { id, text } | null
   objectiveGlitch: null, // { id, text } | null
+  fakeError: null, // { id } | null: the "not responding" dialog
 
   stageRose: (stage) => {
     const text = STAGE_BANNERS[stage]
@@ -24,11 +25,18 @@ export const useCorruptionFxStore = create((set, get) => ({
     const id = get().seq + 1
     set({ seq: id, objectiveGlitch: { id, text } })
   },
+  showFakeError: () => {
+    const id = get().seq + 1
+    set({ seq: id, fakeError: { id } })
+  },
+  clearFakeError: (id) => {
+    if (get().fakeError?.id === id) set({ fakeError: null })
+  },
   clearBanner: (id) => {
     if (get().banner?.id === id) set({ banner: null })
   },
   clearObjectiveGlitch: (id) => {
     if (get().objectiveGlitch?.id === id) set({ objectiveGlitch: null })
   },
-  reset: () => set({ banner: null, objectiveGlitch: null }),
+  reset: () => set({ banner: null, objectiveGlitch: null, fakeError: null }),
 }))

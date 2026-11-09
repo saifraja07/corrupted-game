@@ -40,6 +40,13 @@ export const EVENT_SOUNDS = Object.freeze({
   blackout_start: 'stage_up', // the lights going out
   lights_wrong: 'locked',
   lights_unlocked: 'success',
+  maze_decoy: 'teleport',
+  doorway: 'locked',
+  meta_found: 'success',
+  still_unlocked: 'success',
+  still_decoy: 'locked',
+  too_late: 'glitch',
+  decoy_again: 'locked',
   gate_open: 'door_slide', // Level 7's gate announces itself, so the blind trick has a sound cue
   gate_close: 'door_slide',
   presence_appears: 'presence',

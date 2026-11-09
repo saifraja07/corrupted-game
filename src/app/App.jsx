@@ -12,11 +12,13 @@ import LevelCompleteScreen from '../components/ui/LevelCompleteScreen.jsx'
 import GameHUD from '../components/ui/GameHUD.jsx'
 import GlitchOverlay from '../components/effects/GlitchOverlay.jsx'
 import CorruptionBanner from '../components/effects/CorruptionBanner.jsx'
+import FakeErrorDialog from '../components/effects/FakeErrorDialog.jsx'
 import { requestGameLock } from '../game/player/pointerLock.js'
 import { useGameStore } from '../game/state/gameStore.js'
 import { useProgressStore } from '../game/state/progressStore.js'
+import { triggerMetaExit, useMetaExitStore } from '../game/state/metaExit.js'
 import { getContinueLevelId } from '../game/state/progress.js'
-import { getFirstLevelId, getLevel, getLevelNumber, getNextLevelId } from '../game/config/levels.js'
+import { getFirstLevelId, getLevel, getLevelNumber, getNextLevelId, hasFakeEnding } from '../game/config/levels.js'
 import { GAME_STATES as S } from '../game/core/GameConfig.js'
 import { audio } from '../game/systems/audio.js'
 import { bindAudio } from '../game/systems/audioBridge.js'
@@ -24,8 +26,10 @@ import { bindAudio } from '../game/systems/audioBridge.js'
 export default function App() {
   const status = useGameStore((s) => s.status)
   const levelId = useGameStore((s) => s.levelId)
+  const fakeComplete = useGameStore((s) => s.fakeComplete)
+  const metaExitAvailable = useMetaExitStore((s) => s.available)
   const completedLevelIds = useProgressStore((s) => s.completedLevelIds)
-  const { startGame, finishTransition, pause, resume, restartLevel, nextLevel, beginEnding, quitToMenu } = useGameStore.getState()
+  const { startGame, finishTransition, pause, resume, restartLevel, nextLevel, beginEnding, beginFakeEnding, endFakeEnding, resumeFromFake, quitToMenu } = useGameStore.getState()
 
   const support = useMemo(() => detectSupport(), [])
 
@@ -61,6 +65,13 @@ export default function App() {
   const handleNext = () => {
     if (nextLevel()) requestGameLock()
   }
+  // The final level's real exit lives in the pause menu: take it, then go back to the game to watch it complete.
+  const handleMetaExit = () => {
+    if (triggerMetaExit() && resume()) requestGameLock()
+  }
+  const handleFakeResume = () => {
+    if (resumeFromFake()) requestGameLock() // the fake "complete" screen is over: back to the level
+  }
 
   if (status === S.MAIN_MENU) {
     if (overlay === 'settings') return <SettingsMenu onBack={close} />
@@ -80,6 +91,8 @@ export default function App() {
 
   // The ending is DOM-only; the 3D scene is unmounted to free the GPU.
   if (status === S.ENDING) return <EndingScreen onExit={quitToMenu} onReveal={() => audio.play('secret')} />
+  // The FALSE ending: credits that turn out not to be the end. "Restart" carries on to the next level.
+  if (status === S.FAKE_ENDING) return <EndingScreen variant="fake" onExit={quitToMenu} onContinue={endFakeEnding} />
 
   return (
     <div className="relative h-full w-full">
@@ -88,21 +101,24 @@ export default function App() {
       </GameErrorBoundary>
       <GlitchOverlay />
       <CorruptionBanner />
+      <FakeErrorDialog />
       {status === S.PLAYING && <GameHUD />}
       {status === S.TRANSITIONING && <TransitionScreen onDone={finishTransition} />}
       {status === S.PAUSED &&
         (overlay === 'settings' ? (
           <SettingsMenu onBack={close} />
         ) : (
-          <PauseMenu onResume={handleResume} onRestart={handleRestart} onSettings={() => show('settings')} onQuit={quitToMenu} />
+          <PauseMenu onResume={handleResume} onRestart={handleRestart} onSettings={() => show('settings')} onQuit={quitToMenu} onMetaExit={metaExitAvailable ? handleMetaExit : undefined} />
         ))}
       {status === S.LEVEL_COMPLETE && (
         <LevelCompleteScreen
           levelNumber={getLevelNumber(levelId)}
           levelName={getLevel(levelId)?.name}
-          hasNext={Boolean(getNextLevelId(levelId))}
+          fake={fakeComplete}
+          onFakeResume={handleFakeResume}
+          hasNext={fakeComplete || (Boolean(getNextLevelId(levelId)) && !hasFakeEnding(levelId))}
           onNext={handleNext}
-          onFinish={beginEnding}
+          onFinish={hasFakeEnding(levelId) ? beginFakeEnding : beginEnding}
           onReplay={handleRestart}
           onQuit={quitToMenu}
         />

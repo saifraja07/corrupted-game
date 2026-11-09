@@ -35,6 +35,7 @@ export function bindAudio({ audio, gameStore = useGameStore, settingsStore = use
         audio.play('level_complete')
         break
       case S.ENDING:
+      case S.FAKE_ENDING:
         audio.stopAmbient()
         audio.play('ending')
         break

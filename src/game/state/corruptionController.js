@@ -12,6 +12,8 @@ export function readDevStage(search = globalThis.location?.search ?? '') {
 // single glitch burst only when corruption rises DURING play, never at level start.
 export const corruption = createCorruptionSystem({
   devStage: readDevStage(),
+  devIntensity: parseDevFlags(globalThis.location?.search ?? '').intensity,
+  onIntensityChange: (value) => useGameStore.getState().setCorruptionIntensity(value),
   onChange: (stage, prev, reason) => {
     useGameStore.getState().setCorruptionStage(stage)
     if (reason === 'event' && stage > prev) useCorruptionFxStore.getState().stageRose(stage)

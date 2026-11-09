@@ -72,10 +72,11 @@ describe('fps meter', () => {
 
 describe('dev flags', () => {
   it('has safe defaults', () => {
-    expect(parseDevFlags('')).toEqual({ corruptionStage: null, showCeiling: true, showStats: false })
+    expect(parseDevFlags('')).toEqual({ corruptionStage: null, intensity: null, showCeiling: true, showStats: false })
   })
   it('parses each flag strictly', () => {
-    expect(parseDevFlags('?ceiling=0&stats=1&corruption=3')).toEqual({ corruptionStage: 3, showCeiling: false, showStats: true })
-    expect(parseDevFlags('?ceiling=1&stats=yes&corruption=7')).toEqual({ corruptionStage: null, showCeiling: true, showStats: false })
+    expect(parseDevFlags('?ceiling=0&stats=1&corruption=3&intensity=2')).toEqual({ corruptionStage: 3, intensity: 2, showCeiling: false, showStats: true })
+    expect(parseDevFlags('?corruption=3&intensity=6').intensity).toBe(6) // the harsher tiers can be previewed too
+    expect(parseDevFlags('?ceiling=1&stats=yes&corruption=7&intensity=9')).toEqual({ corruptionStage: null, intensity: null, showCeiling: true, showStats: false })
   })
 })

@@ -78,7 +78,7 @@ describe('ambient events: determinism and variety', () => {
     for (const stage of [1, 2, 3]) {
       const seen = new Set()
       for (let i = 0; i < 12; i++) for (const { event } of simulate({ stage, seed: `v${i}`, minutes: 120 })) seen.add(event.id)
-      const expected = AMBIENT_EVENTS.filter((e) => e.minStage <= stage).map((e) => e.id)
+      const expected = AMBIENT_EVENTS.filter((e) => e.minStage <= stage && (e.minIntensity ?? 0) === 0).map((e) => e.id) // plain stage: no intensity
       expect([...seen].sort()).toEqual(expected.sort())
     }
   })
@@ -119,8 +119,8 @@ describe('ambient events: content is safe and readable', () => {
     for (const e of AMBIENT_EVENTS) {
       expect(e.weight).toBeGreaterThan(0)
       expect([1, 2, 3]).toContain(e.minStage)
-      expect(['notice', 'objective', 'sound']).toContain(e.kind)
-      if (e.kind !== 'sound') {
+      expect(['notice', 'objective', 'sound', 'fakeError']).toContain(e.kind)
+      if (e.kind === 'notice' || e.kind === 'objective') {
         expect(e.text.length).toBeGreaterThan(0)
         expect(e.text.length).toBeLessThanOrEqual(40)
       }

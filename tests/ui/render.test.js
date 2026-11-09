@@ -52,6 +52,16 @@ describe('module graph', () => {
       import('../../src/game/levels/Level06.jsx'),
       import('../../src/game/levels/Level07.jsx'),
       import('../../src/game/levels/Level08.jsx'),
+      import('../../src/game/levels/Level09.jsx'),
+      import('../../src/game/levels/Level10.jsx'),
+      import('../../src/game/levels/Level11.jsx'),
+      import('../../src/game/levels/Level12.jsx'),
+      import('../../src/game/levels/Level13.jsx'),
+      import('../../src/game/levels/Level14.jsx'),
+      import('../../src/game/levels/Level15.jsx'),
+      import('../../src/game/levels/Level16.jsx'),
+      import('../../src/game/levels/Level17.jsx'),
+      import('../../src/game/levels/Level18.jsx'),
       import('../../src/components/ui/GameHUD.jsx'),
     ])
     for (const m of mods) expect(typeof m.default).toBe('function')

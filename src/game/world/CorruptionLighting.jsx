@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { STAGE_PROFILES } from '../config/corruption.js'
+import { getStageProfile } from '../config/corruption.js'
 import { lightMultiplier } from '../systems/corruptionEffects.js'
 import { useGameStore } from '../state/gameStore.js'
 import { sceneFx } from '../state/sceneFx.js'
@@ -10,8 +10,9 @@ import { useReducedMotion } from '../../hooks/useReducedMotion.js'
 // only when it rises; the slow light animation runs on refs inside useFrame (no per-frame renders).
 export default function CorruptionLighting() {
   const stage = useGameStore((s) => s.corruptionStage)
+  const intensity = useGameStore((s) => s.corruptionIntensity)
   const reduced = useReducedMotion()
-  const p = STAGE_PROFILES[stage]
+  const p = getStageProfile(stage, intensity)
   const ambient = useRef(null)
   const sun = useRef(null)
 
